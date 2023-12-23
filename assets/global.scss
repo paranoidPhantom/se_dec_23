@@ -1,19 +1,28 @@
-:root {
-    --inverted-rgb: 0, 0, 0;
-    --normal-rgb: 255, 255, 255;
-    --is-dark: 0;
-    &.dark {
-        --inverted-rgb: 255, 255, 255;
-        --normal-rgb: 18, 18, 18;
-        --is-dark: 1;
-    }
+body {
+    background-color: black;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Martian+Mono:wght@500;600;700&family=Inter:wght@200;300;400;500;600;700&display=swap');
-
 @font-face {
-    font-family: CascadiaCode;
-    src: url(/CascadiaCode-ExtraLight.otf);
+	font-family: "Frozen";
+	src: url("/icekingdomfrozencyrillic_bold.ttf");
+}
+
+#snow {
+	position: fixed;
+	inset: 0;
+	overflow: hidden;
+	z-index: 1000;
+	pointer-events: none;
+}
+
+.snowflake {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: linear-gradient(white, white);
+    /* Workaround for Chromium's selective color inversion */
+    border-radius: 50%;
+    filter: drop-shadow(0 0 10px white);
 }
 
 .page-enter-from,

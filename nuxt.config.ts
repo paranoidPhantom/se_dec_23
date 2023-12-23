@@ -14,11 +14,6 @@ export default defineNuxtConfig({
   css: [
 	  "assets/global.scss"
   ],
-  colorMode: {
-	  preference: 'light', // default value of $colorMode.preference
-	  fallback: 'light', // fallback value if not system preference found
-	  storageKey: 'nuxt-color-mode'
-  },
   supabase: {
 	  redirect: false
   }

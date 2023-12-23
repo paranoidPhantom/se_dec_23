@@ -5,7 +5,7 @@ definePageMeta({
 </script>
 
 <template>
-    <div class="__home p-6 sm:p-12 md:p-20 lg:p-32">
+    <div class="__home px-6 sm:px-12 md:px-20 lg:px-32 pt-12">
 		<Voting />
 	</div>
 </template>

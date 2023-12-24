@@ -28,7 +28,7 @@ watchEffect(() => {
 </script>
 
 <template>
-    <div id="snow" data-count="100"></div>
+    <div id="snow" data-count="30"></div>
     <NuxtLayout>
         <NuxtPage />
     </NuxtLayout>

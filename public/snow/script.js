@@ -6,6 +6,7 @@ let baseCSS = ``;
 if (typeof SNOWFLAKES_COUNT !== 'undefined') {
   snowflakesCount = SNOWFLAKES_COUNT;
 }
+
 if (typeof BASE_CSS !== 'undefined') {
   baseCSS = BASE_CSS;
 }
@@ -120,12 +121,13 @@ function generateSnowCSS(snowDensity = 200) {
 function createSnow() {
   setHeightVariables();
   getSnowAttributes();
+  if (navigator.userAgent.includes("Win64")) snowflakesCount *= window.screen.width / 400
   generateSnowCSS(snowflakesCount);
   generateSnow(snowflakesCount);
 };
 
 
-window.addEventListener('resize', createSnow);
+// window.addEventListener('resize', createSnow);
 
 // export createSnow function if using node or CommonJS environment
 if (typeof module !== 'undefined') {

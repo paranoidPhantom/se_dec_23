@@ -4,6 +4,7 @@
 
 <template>
     <div class="__home px-6 sm:px-12 md:px-20 lg:px-32 pt-12">
+	<img src="/logo.webp" alt="Логотип - ёлка" class="w-1/6" style="filter: drop-shadow(0 1rem 3rem rgba(0,0,0,0.5));">
 		<Stream />
 		<Voting />
 	</div>

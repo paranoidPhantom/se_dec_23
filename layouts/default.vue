@@ -23,6 +23,7 @@
 				<a class="flex items-center gap-2 xl:justify-end" href="https://nuxt.com" target="_blank"><Icon name="logos:nuxt-icon"/> Nuxt 3</a>
 				<a class="flex items-center gap-2 xl:justify-end" href="https://ui.nuxt.com" target="_blank"><Icon name="logos:nuxt-icon" style="filter: hue-rotate(38deg);"/> Nuxt UI</a>
 				<a class="flex items-center gap-2 xl:justify-end" href="https://supabase.com" target="_blank"><Icon name="logos:supabase-icon"/> Supabase</a>
+				<a class="flex items-center gap-2 xl:justify-end" href="https://tailwindcss.com" target="_blank"><Icon name="logos:tailwindcss-icon"/> Tailwind</a>
 			</div>
 		</footer>
     </div>

@@ -33,6 +33,7 @@ const allGrades = ref<string[]>([]);
 const done = ref(false);
 const pending = ref(false);
 const pendingFilters = ref(false);
+const autofillAttempt = ref(false);
 const voteCount = 3;
 const errorMSG = ref();
 
@@ -70,6 +71,17 @@ const search = async (initial?: boolean) => {
     FormOptions.last_name = Array.from(l_names);
     FormOptions.grade = Array.from(grades);
     pendingFilters.value = false;
+	if (autofillAttempt.value === false) {
+		if (FormOptions.first_name.length === 1) {
+			Form.first_name = FormOptions.first_name[0]
+		}
+		if (FormOptions.last_name.length === 1) {
+			Form.last_name = FormOptions.last_name[0]
+		}
+		if (FormOptions.grade.length === 1) {
+			Form.grade = FormOptions.grade[0]
+		}
+	}
 };
 
 onMounted(() => search(true));
@@ -167,6 +179,16 @@ const finish_vote = async () => {
         }
     });
 };
+
+
+const listener = supabase
+    .channel("custom-all-channel")
+    .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "people" },
+        () => search()
+    )
+    .subscribe();
 </script>
 
 <template>
@@ -204,7 +226,7 @@ const finish_vote = async () => {
                         />
                         <UButton
                             :class="{ 'opacity-0': !Form[field.key] }"
-                            @click="(event) => clearField(event, field.key)"
+                            @click="(event) => { autofillAttempt = true; clearField(event, field.key) }"
                             class="ml-auto"
                             icon="i-heroicons-x-mark-solid"
                             variant="link"
@@ -285,7 +307,7 @@ const finish_vote = async () => {
     > h1,
     > h2,
     > button {
-        font-family: "Frozen";
+        font-family: "Frozen", Arial;
         margin: 0 auto;
         text-align: center;
     }

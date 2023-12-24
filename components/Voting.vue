@@ -147,6 +147,7 @@ const formLink = () => {
 
 const finish_vote = async () => {
     if (done.value === true) return;
+	pending.value = true
     let vote: string[] = [];
     allGrades.value.forEach((grade) => {
         if (checked[grade]) vote.push(grade);
@@ -185,6 +186,7 @@ const finish_vote = async () => {
             }
         }
     }
+	pending.value = false
 };
 
 const listener = supabase

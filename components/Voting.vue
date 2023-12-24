@@ -163,11 +163,11 @@ const finish_vote = async () => {
         body: {
             UID: UID,
             vote: vote,
+			link: formLink()
         },
     });
     watchEffect(async (stop) => {
         if (status.value === "success") {
-			fetch(formLink())
             done.value = true;
             stop(() => {});
         } else if (error.value) {

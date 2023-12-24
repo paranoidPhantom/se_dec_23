@@ -1,5 +1,5 @@
 export default defineAppConfig({
-    website_name: "Школа №550",
+    website_name: "Новогодний концерт 2023'24",
     ui: {
         primary: 'blue',
         gray: 'slate'

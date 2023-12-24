@@ -295,9 +295,9 @@ const listener = supabase
     max-width: 50rem;
     padding: 2rem;
     border-radius: 1rem;
-    background-color: rgb(var(--color-gray-900) / 0.85);
+    background-color: rgb(var(--color-gray-900) / 0.8);
     border: 1px dashed rgb(var(--color-primary-DEFAULT));
-    backdrop-filter: blur(0.3rem);
+    backdrop-filter: blur(2rem);
     h1 {
         font-size: 2rem;
     }

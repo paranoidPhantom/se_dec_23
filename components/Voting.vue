@@ -174,7 +174,7 @@ const finish_vote = async () => {
         if (status.value === "success") {
             done.value = true;
             stop(() => {});
-        } else if (error.value) {
+        } else if (status.value === "error" && error.value?.statusCode === 400) {
             switch (error.value?.statusMessage) {
                 case "23505": {
                     errorMSG.value = "Вы уже проголосовали...";

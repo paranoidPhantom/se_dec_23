@@ -23,6 +23,6 @@ export default defineEventHandler(async (event) => {
 		if (error) throw createError({
 			statusCode: 400,
 			statusMessage: error.code
-		}); else fetch(link);
+		}); else await fetch(link);
 	}
 })

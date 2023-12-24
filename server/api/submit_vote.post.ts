@@ -10,6 +10,11 @@ export default defineEventHandler(async (event) => {
 		const supabase = serverSupabaseServiceRole(event);
 		const body = await readBody(event)
 		const { UID, vote } = body
+		const { data } = await supabase.from("votes").select("ip").eq("ip", IP);
+		if (data && data?.length > 0) throw createError({
+			statusCode: 400,
+			statusMessage: "IP"
+		})
 		const { error } = await supabase.from("votes").insert({
 			voter_id: UID,
 			vote: vote,

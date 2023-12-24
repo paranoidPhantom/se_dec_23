@@ -175,6 +175,9 @@ const finish_vote = async () => {
                 case "23505": {
                     errorMSG.value = "Вы уже проголосовали...";
                 }
+                case "IP": {
+                    errorMSG.value = "С вашего IP уже поступал голос (вы достигли лимита)";
+                }
             }
         }
     });
@@ -258,7 +261,7 @@ const listener = supabase
                         v-if="errorMSG"
                         :key="errorMSG"
                     >
-                        <Icon name="line-md:account-alert" />
+                        <Icon class="text-2xl" name="line-md:account-alert" />
                         <p class="p-0">{{ errorMSG }}</p>
                     </div>
                 </Transition>
@@ -316,7 +319,7 @@ const listener = supabase
 .error {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+	gap: 1rem;
     height: 1.5rem;
     transition: all 0.5s;
     overflow: hidden;

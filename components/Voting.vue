@@ -170,24 +170,21 @@ const finish_vote = async () => {
             link: formLink(),
         },
     });
-    watchEffect(async (stop) => {
-        if (status.value === "success") {
-            done.value = true;
-            stop(() => {});
-        } else if (status.value === "error" && error.value?.statusCode === 400) {
-            switch (error.value?.statusMessage) {
-                case "23505": {
-                    errorMSG.value = "Вы уже проголосовали...";
-                    break;
-                }
-                case "IP": {
-                    errorMSG.value =
-                        "С вашего IP уже поступал голос (вы достигли лимита)";
-                    break;
-                }
+    if (status.value === "success") {
+        done.value = true;
+    } else if (status.value === "error" && error.value?.statusCode === 400) {
+        switch (error.value?.statusMessage) {
+            case "23505": {
+                errorMSG.value = "Вы уже проголосовали...";
+                break;
+            }
+            case "IP": {
+                errorMSG.value =
+                    "С вашего IP уже поступал голос (вы достигли лимита)";
+                break;
             }
         }
-    });
+    }
 };
 
 const listener = supabase
@@ -264,7 +261,7 @@ const listener = supabase
                 </div>
             </UFormGroup>
             <hr />
-			{{ errorMSG }}
+            {{ errorMSG }}
             <div class="error-wrapper">
                 <Transition name="error">
                     <div

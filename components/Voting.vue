@@ -71,17 +71,17 @@ const search = async (initial?: boolean) => {
     FormOptions.last_name = Array.from(l_names);
     FormOptions.grade = Array.from(grades);
     pendingFilters.value = false;
-	if (autofillAttempt.value === false) {
-		if (FormOptions.first_name.length === 1) {
-			Form.first_name = FormOptions.first_name[0]
-		}
-		if (FormOptions.last_name.length === 1) {
-			Form.last_name = FormOptions.last_name[0]
-		}
-		if (FormOptions.grade.length === 1) {
-			Form.grade = FormOptions.grade[0]
-		}
-	}
+    if (autofillAttempt.value === false) {
+        if (FormOptions.first_name.length === 1) {
+            Form.first_name = FormOptions.first_name[0];
+        }
+        if (FormOptions.last_name.length === 1) {
+            Form.last_name = FormOptions.last_name[0];
+        }
+        if (FormOptions.grade.length === 1) {
+            Form.grade = FormOptions.grade[0];
+        }
+    }
 };
 
 onMounted(() => search(true));
@@ -94,8 +94,12 @@ watch(Form, () => {
 
 const clearField = (event: Event, field: keyof typeof Form) => {
     if (!Form[field]) return;
+    autofillAttempt.value = true;
     event.stopPropagation();
     Form[field] = undefined;
+    setTimeout(() => {
+        autofillAttempt.value = false;
+    }, 3000);
 };
 
 const fields: {
@@ -134,7 +138,7 @@ const checked_count = computed(() => {
 });
 
 const formLink = () => {
-	let list: string[] = []
+    let list: string[] = [];
     allGrades.value.forEach((grade) => {
         if (checked[grade]) list.push(grade);
     });
@@ -163,7 +167,7 @@ const finish_vote = async () => {
         body: {
             UID: UID,
             vote: vote,
-			link: formLink()
+            link: formLink(),
         },
     });
     watchEffect(async (stop) => {
@@ -174,15 +178,17 @@ const finish_vote = async () => {
             switch (error.value?.statusMessage) {
                 case "23505": {
                     errorMSG.value = "Вы уже проголосовали...";
+                    break;
                 }
                 case "IP": {
-                    errorMSG.value = "С вашего IP уже поступал голос (вы достигли лимита)";
+                    errorMSG.value =
+                        "С вашего IP уже поступал голос (вы достигли лимита)";
+                    break;
                 }
             }
         }
     });
 };
-
 
 const listener = supabase
     .channel("custom-all-channel")
@@ -229,7 +235,11 @@ const listener = supabase
                         />
                         <UButton
                             :class="{ 'opacity-0': !Form[field.key] }"
-                            @click="(event) => { autofillAttempt = true; clearField(event, field.key) }"
+                            @click="
+                                (event) => {
+                                    clearField(event, field.key);
+                                }
+                            "
                             class="ml-auto"
                             icon="i-heroicons-x-mark-solid"
                             variant="link"
@@ -254,11 +264,12 @@ const listener = supabase
                 </div>
             </UFormGroup>
             <hr />
+			{{ errorMSG }}
             <div class="error-wrapper">
                 <Transition name="error">
                     <div
                         class="error text-red-500"
-                        v-if="errorMSG"
+                        v-if="!!errorMSG"
                         :key="errorMSG"
                     >
                         <Icon class="text-2xl" name="line-md:account-alert" />
@@ -319,7 +330,7 @@ const listener = supabase
 .error {
     display: flex;
     align-items: center;
-	gap: 1rem;
+    gap: 1rem;
     height: 1.5rem;
     transition: all 0.5s;
     overflow: hidden;

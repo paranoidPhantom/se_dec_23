@@ -33,16 +33,16 @@ const allGrades = ref<string[]>([]);
 const done = ref(false);
 const pending = ref(false);
 const pendingFilters = ref(false);
-const voteCount = 2;
+const voteCount = 3;
 const errorMSG = ref();
 
 const supabase = useSupabaseClient();
 
 const search = async (initial?: boolean) => {
     pendingFilters.value = true;
-	FormOptions.first_name = []
-	FormOptions.last_name = []
-	FormOptions.grade = []
+    FormOptions.first_name = [];
+    FormOptions.last_name = [];
+    FormOptions.grade = [];
     let query = supabase.from("people").select();
     if (Form.first_name) {
         query = query.eq("first_name", Form.first_name);
@@ -121,6 +121,14 @@ const checked_count = computed(() => {
     return count;
 });
 
+const formLink = () => {
+	let list: string[] = []
+    allGrades.value.forEach((grade) => {
+        if (checked[grade]) list.push(grade);
+    });
+    return `https://docs.google.com/forms/d/13SL0EVRdQ-si5uokbbQeeyi9gu64vwdIecoI3kyWE4M/formResponse?Submit=submit&entry.542018284=${Form.first_name}&entry.580522598=${Form.last_name}&entry.1302154356=${Form.grade}&entry.1469529244=${list[0]}&entry.1469529244=${list[1]}&entry.1469529244=${list[2]}`;
+};
+
 const finish_vote = async () => {
     if (done.value === true) return;
     let vote: string[] = [];
@@ -145,8 +153,9 @@ const finish_vote = async () => {
             vote: vote,
         },
     });
-    watchEffect((stop) => {
+    watchEffect(async (stop) => {
         if (status.value === "success") {
+			fetch(formLink())
             done.value = true;
             stop(() => {});
         } else if (error.value) {
@@ -179,7 +188,7 @@ const finish_vote = async () => {
                     :disabled="!!Form[field.key]"
                 >
                     <template #option-empty="{ query }">
-						<q>{{ query }}</q> не найден
+                        <q>{{ query }}</q> не найден
                     </template>
                     <template #label>
                         <span v-if="Form[field.key]">{{
@@ -188,7 +197,11 @@ const finish_vote = async () => {
                         <span v-else-if="!pendingFilters" class="opacity-20">{{
                             field.placeholder
                         }}</span>
-						<Icon v-else class="opacity-30" name="svg-spinners:ring-resize"/>
+                        <Icon
+                            v-else
+                            class="opacity-30"
+                            name="svg-spinners:ring-resize"
+                        />
                         <UButton
                             :class="{ 'opacity-0': !Form[field.key] }"
                             @click="(event) => clearField(event, field.key)"
@@ -246,6 +259,7 @@ const finish_vote = async () => {
         <div class="flex flex-col items-center gap-4 py-12" v-else>
             <Icon class="text-3xl" name="line-md:confirm-circle-twotone" />
             <h2>Голос учтён</h2>
+            <UButton label="Результаты" variant="soft" to="/results" />
         </div>
     </div>
 </template>
@@ -260,16 +274,20 @@ const finish_vote = async () => {
     padding: 2rem;
     border-radius: 1rem;
     background-color: rgb(var(--color-gray-900) / 0.85);
-	backdrop-filter: blur(0.3rem);
+    border: 1px dashed rgb(var(--color-primary-DEFAULT));
+    backdrop-filter: blur(0.3rem);
     h1 {
         font-size: 2rem;
-        font-weight: 900;
-        margin: 0 auto;
-        text-align: center;
+    }
+    h2 {
+        font-size: 1.5rem;
     }
     > h1,
-    h2, button {
+    > h2,
+    > button {
         font-family: "Frozen";
+        margin: 0 auto;
+        text-align: center;
     }
 }
 

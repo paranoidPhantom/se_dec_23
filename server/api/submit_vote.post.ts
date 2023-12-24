@@ -8,7 +8,6 @@ export default defineEventHandler(async (event) => {
 		voter_id: UID,
 		vote: vote
 	} as any)
-	console.log(error)
 	if (error) throw createError({
 		statusCode: 400,
 		statusMessage: error.code

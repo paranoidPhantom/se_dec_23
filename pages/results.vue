@@ -97,6 +97,10 @@ const data = computed(() => {
 
 // Pie chart
 
+let colors: {
+	[key: string]: string;
+} = {}
+
 const pie_data = computed(() => {
     let retval = {
         labels: [],
@@ -108,9 +112,9 @@ const pie_data = computed(() => {
         ],
     };
 	data.value.forEach((entry, index) => {
-		const randomColor = Math.floor(Math.random()*16777215).toString(16);
+		if (!colors[entry.grade]) colors[entry.grade] = Math.floor(Math.random()*16777215).toString(16);
 		retval.labels[index] = entry.grade
-		retval.datasets[0].backgroundColor[index] = "#"+randomColor
+		retval.datasets[0].backgroundColor[index] = "#"+colors[entry.grade]
 		retval.datasets[0].data[index] = entry.votes
 	})
 	return retval
@@ -121,11 +125,16 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 </script>
 
 <template>
-    <div class="__results px-6 sm:px-12 md:px-20 lg:px-32 pt-12">
-		<div class="pie-wrapper">
-        	<Pie :data="pie_data" :options="{ responsive: true }" />
+    <div class="__results px-6 sm:px-12 md:px-20 lg:px-32 pt-12 gap-8">
+		<h1>Результаты голосования</h1>
+		<div class="data flex gap-8 justify-center flex-wrap">
+			<div class="pie-wrapper">
+				<Pie style="position: relative;" :data="pie_data" :options="{ responsive: true }" />
+			</div>
+			<div class="table-wrapper">
+				<UTable :columns="columns" :rows="data"/>
+			</div>
 		</div>
-        <!-- <UTable :rows="data" :columns="columns" /> -->
     </div>
 </template>
 
@@ -134,14 +143,38 @@ ChartJS.register(ArcElement, Tooltip, Legend);
     display: flex;
     flex-direction: column;
     align-items: center;
-	justify-content: center;
-	height: 100vh;
-	background-image: url("/background2.webp");
 	background-position: center;
 	background-size: cover;
-	.pie-wrapper {
-		width: 50%;
-		max-width: 30rem;
+	.data {
+		width: 100%;
+		.pie-wrapper {
+			display: flex;
+			justify-content: center;
+			width: 100%;
+			max-width: 40rem;
+			background-color: rgba(0, 0, 0, 0.8);
+			padding: 2rem;
+			backdrop-filter: blur(1rem);
+			aspect-ratio: 1;
+			border-radius: 100rem;
+			padding-bottom: 4rem;
+			> * {
+				filter: invert(1) contrast(1.2);
+			}
+		}
+		.table-wrapper {
+			background-color: rgba(0, 0, 0, 0.8);
+			backdrop-filter: blur(1rem);
+			padding: 1rem;
+			border-radius: 2rem;
+		}
 	}
+    h1 {
+        font-size: 3rem;
+        font-family: "Frozen", Arial;
+        margin: 0 auto;
+        text-align: center;
+		filter: drop-shadow(0 0 1rem black);
+    }
 }
 </style>

@@ -29,7 +29,6 @@ watchEffect(() => {
 
 <template>
     <div id="snow" data-count="30"></div>
-	<p class="notice" style="position: fixed; z-index: -1; left: 1rem; top: 1rem;">(Ждём фон от дизайнера)</p>
     <NuxtLayout>
         <NuxtPage />
     </NuxtLayout>

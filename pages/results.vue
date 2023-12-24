@@ -136,6 +136,9 @@ ChartJS.register(ArcElement, Tooltip, Legend);
     align-items: center;
 	justify-content: center;
 	height: 100vh;
+	background-image: url("/background2.webp");
+	background-position: center;
+	background-size: cover;
 	.pie-wrapper {
 		width: 50%;
 		max-width: 30rem;

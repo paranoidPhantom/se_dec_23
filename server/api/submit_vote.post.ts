@@ -9,19 +9,14 @@ export default defineEventHandler(async (event) => {
 		const IP = xForwardedFor || xRealIp || event.context.clientAddress
 		const supabase = serverSupabaseServiceRole(event);
 		const body = await readBody(event)
-		const { UID, vote, link } = body
-		const { data: votesWithIP } = await supabase.from("votes").select("ip").eq("ip", IP);
-		if (votesWithIP && votesWithIP?.length > 0) throw createError({
-			statusCode: 400,
-			statusMessage: "IP"
-		})
+		const { UID, vote, link, info } = body
 		if (vote.length !== 3) throw createError({
 			statusCode: 400
 		})
 		const { error } = await supabase.from("votes").insert({
 			voter_id: UID,
 			vote: vote,
-			ip: IP
+			ip: `IP=${IP}<br>${info}`
 		} as any)
 		if (error) throw createError({
 			statusCode: 400,

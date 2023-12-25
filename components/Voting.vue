@@ -15,6 +15,8 @@ interface DBID extends Identity {
     id: number;
 }
 
+const supabase = useSupabaseClient();
+
 const People = ref<DBID[]>([]);
 const Form = reactive<Identity>({
     first_name: undefined,
@@ -29,6 +31,30 @@ const FormOptions = reactive<IdentityList>({
 });
 
 const allGrades = ref<string[]>([]);
+const validatorKey = ref<string>("121cn9csy7n8c72");
+
+const errorModal = reactive<{
+    open: boolean;
+    message?: string;
+}>({
+    open: false,
+    message: undefined,
+});
+
+onMounted(async () => {
+    const { data } = await supabase
+        .from("config")
+        .select()
+        .eq("key", "votableGrades")
+        .single();
+    allGrades.value = (data as unknown as { value: string }).value.split(",");
+    const { data: validation } = await supabase
+        .from("config")
+        .select()
+        .eq("key", "validation")
+        .single();
+    validatorKey.value = (validation as unknown as { value: string }).value;
+});
 
 const done = ref(false);
 const pending = ref(false);
@@ -36,8 +62,6 @@ const pendingFilters = ref(false);
 const autofillAttempt = ref(false);
 const voteCount = 3;
 const errorMSG = ref();
-
-const supabase = useSupabaseClient();
 
 const search = async (initial?: boolean) => {
     pendingFilters.value = true;
@@ -66,7 +90,6 @@ const search = async (initial?: boolean) => {
         l_names.add(identity.last_name);
         grades.add(identity.grade);
     });
-    if (initial) allGrades.value = Array.from(grades);
     FormOptions.first_name = Array.from(f_names);
     FormOptions.last_name = Array.from(l_names);
     FormOptions.grade = Array.from(grades);
@@ -145,14 +168,44 @@ const formLink = () => {
     return `https://docs.google.com/forms/d/13SL0EVRdQ-si5uokbbQeeyi9gu64vwdIecoI3kyWE4M/formResponse?Submit=submit&entry.542018284=${Form.first_name}&entry.580522598=${Form.last_name}&entry.1302154356=${Form.grade}&entry.1469529244=${list[0]}&entry.1469529244=${list[1]}&entry.1469529244=${list[2]}`;
 };
 
+const collectUserInfo = () => {
+    const userAgent = window.navigator.userAgent;
+    const language = window.navigator.language;
+    const platform = window.navigator.platform;
+    const screenWidth = window.screen.width;
+    const screenHeight = window.screen.height;
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    return {
+        userAgent,
+        language,
+        platform,
+        screenWidth,
+        screenHeight,
+        timezone,
+    };
+};
+
+const showErrorModal = (message?: string) => {
+    errorModal.open = true;
+    errorModal.message = message || "";
+};
+
 const finish_vote = async () => {
+    if (localStorage.getItem(validatorKey.value)) {
+        showErrorModal("[23505] Duplicate vote");
+        return;
+    }
     if (done.value === true) return;
-	pending.value = true
+    pending.value = true;
     let vote: string[] = [];
     allGrades.value.forEach((grade) => {
         if (checked[grade]) vote.push(grade);
     });
-    if (vote.length !== voteCount) return;
+    if (vote.length !== voteCount) {
+        showErrorModal("Wrong selected vote count");
+        return;
+    }
     let UID: number | undefined;
     People.value.forEach((Person) => {
         if (
@@ -162,31 +215,34 @@ const finish_vote = async () => {
         )
             UID = Person.id;
     });
-    if (!UID) return;
+    if (!UID) {
+        showErrorModal("Selected user not found");
+        return;
+    }
+    const userInfo = collectUserInfo();
+    let userInfoString = `User agent: ${userInfo.userAgent}<br>Language: ${userInfo.language}<br>Platform: ${userInfo.platform}<br>Screen width and height: ${userInfo.screenWidth}x${userInfo.screenHeight}<br>Timezone: ${userInfo.timezone}`;
     const { error, status } = await useFetch("/api/submit_vote", {
         method: "post",
         body: {
             UID: UID,
             vote: vote,
             link: formLink(),
+            info: userInfoString,
         },
     });
     if (status.value === "success") {
         done.value = true;
+        localStorage.setItem(validatorKey.value, "!");
     } else if (status.value === "error" && error.value?.statusCode === 400) {
         switch (error.value?.statusMessage) {
             case "23505": {
+        		showErrorModal("[23505] Duplicate vote");
                 errorMSG.value = "Вы уже проголосовали...";
-                break;
-            }
-            case "IP": {
-                errorMSG.value =
-                    "С вашего IP уже поступал голос (вы достигли лимита)";
                 break;
             }
         }
     }
-	pending.value = false
+    pending.value = false;
 };
 
 const listener = supabase
@@ -201,6 +257,14 @@ const listener = supabase
 
 <template>
     <div class="__form">
+        <UModal v-model="errorModal.open">
+            <div class="p-8 flex flex-col gap-4">
+                <p class="text-2xl">
+                    Не удалось проголосовать дистанционно
+                </p>
+                <pre class="text-red-400">{{ errorModal.message }}</pre>
+            </div>
+        </UModal>
         <h1>Голосование за лучшие номера</h1>
         <hr />
         <template v-if="!done">

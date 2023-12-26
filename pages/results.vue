@@ -1,7 +1,5 @@
 <script lang="ts" setup>
 import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { Pie } from "vue-chartjs";
 
 definePageMeta({
     name: "Результаты голосования",
@@ -30,6 +28,8 @@ const columns = [
         label: "Голосов",
     },
 ];
+
+const route = useRoute()
 
 const { data: initialVotes } = (await supabase.from("votes").select()) as {
     data: DBVote[];
@@ -65,6 +65,27 @@ const handle_postgres_changes = (
     }
 };
 
+let gradeSortArray = [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5А",
+    "5Б",
+    "6А",
+    "6Б",
+    "7А",
+    "7Б",
+    "8А",
+    "8Б",
+    "9А",
+    "9Б",
+    "10А",
+    "10Б",
+    "11А",
+    "11Б",
+];
+
 const listener = supabase
     .channel("custom-all-channel")
     .on(
@@ -73,6 +94,16 @@ const listener = supabase
         handle_postgres_changes
     )
     .subscribe();
+
+const voteCount = computed(() => {
+    let result = 0;
+    votes.value.forEach((vote) => {
+        for (let i = 0; i < vote.vote.length; i++) {
+            result++;
+        }
+    });
+    return result;
+});
 
 const data = computed(() => {
     let resultObject: {
@@ -92,49 +123,52 @@ const data = computed(() => {
             votes: resultObject[key],
         });
     });
-    return retval;
+    return retval.sort((a, b) => {
+        const aIndex = gradeSortArray.findIndex((val) => val === a.grade);
+        const bIndex = gradeSortArray.findIndex((val) => val === b.grade);
+        return aIndex - bIndex;
+    });
 });
 
-// Pie chart
+const fullscreen = ref(route.query.fullscreen === "1")
 
-let colors: {
-	[key: string]: string;
-} = {}
-
-const pie_data = computed(() => {
-    let retval = {
-        labels: [],
-        datasets: [
-            {
-                backgroundColor: [],
-                data: [],
-            },
-        ],
-    };
-	data.value.forEach((entry, index) => {
-		if (!colors[entry.grade]) colors[entry.grade] = Math.floor(Math.random()*16777215).toString(16);
-		retval.labels[index] = entry.grade
-		retval.datasets[0].backgroundColor[index] = "#"+colors[entry.grade]
-		retval.datasets[0].data[index] = entry.votes
-	})
-	return retval
-});
-
-ChartJS.register(ArcElement, Tooltip, Legend);
-//
+defineShortcuts({
+	shift_f: () => fullscreen.value = !fullscreen.value
+})
 </script>
 
 <template>
     <div class="__results px-6 sm:px-12 md:px-20 lg:px-32 pt-12 gap-8">
-		<h1>Результаты голосования</h1>
-		<div class="data flex gap-8 justify-center flex-wrap">
-			<div class="pie-wrapper">
-				<Pie style="position: relative;" :data="pie_data" :options="{ responsive: true }" />
-			</div>
-			<div class="table-wrapper">
-				<UTable :columns="columns" :rows="data"/>
-			</div>
-		</div>
+        <h1>Результаты голосования</h1>
+        <div class="data flex justify-center gap-8 items-center flex-wrap">
+            <div class="chart flex gap-1 sm:gap-2 md:gap-4 w-full" :class="{ fullscreen: fullscreen }">
+                <div class="graph flex flex-col justify-end items-center h-96">
+                    <p class="h-full">100%</p>
+                    <p class="h-full">80%</p>
+                    <p class="h-full">60%</p>
+                    <p class="h-full">40%</p>
+                    <p class="h-full">20%</p>
+                    <p class="opacity-80">
+                        <i>Scale</i>
+                    </p>
+                </div>
+                <div
+                    class="bar flex flex-col  justify-end items-center h-96 w-full"
+                    v-for="bar in data"
+                >
+                    <div
+                        class="val flex items-center justify-center bg-primary-400 w-2 sm:w-4 lg:w-8 shadow-primary-400"
+                        :style="{ height: `${(bar.votes / voteCount) * 100}%` }"
+                    ></div>
+                    <p class="opacity-80">
+                        <i>{{ bar.grade }}</i>
+                    </p>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <UTable :columns="columns" :rows="data" />
+            </div>
+        </div>
     </div>
 </template>
 
@@ -143,38 +177,59 @@ ChartJS.register(ArcElement, Tooltip, Legend);
     display: flex;
     flex-direction: column;
     align-items: center;
-	background-position: center;
-	background-size: cover;
-	.data {
-		width: 100%;
-		.pie-wrapper {
-			display: flex;
-			justify-content: center;
-			width: 100%;
-			max-width: 40rem;
-			background-color: rgba(0, 0, 0, 0.8);
-			padding: 2rem;
-			backdrop-filter: blur(1rem);
-			aspect-ratio: 1;
-			border-radius: 100rem;
-			padding-bottom: 4rem;
-			> * {
-				filter: invert(1) contrast(1.2);
+    background-position: center;
+    background-size: cover;
+    .data {
+        width: 100%;
+        .chart {
+            .graph {
+                p:after {
+                    content: "";
+                    position: absolute;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                    right: 0;
+                    left: 1rem;
+                }
+            }
+            .val {
+                transition: all 0.3s ease-in-out;
+                box-shadow: 0 0 1rem var(--tw-shadow-color);
+                border-radius: 3px 3px 0 0;
+				cursor: pointer;
+				.info {
+					transition: all 0.3s ease-in-out;
+					opacity: 0;
+				}
+				&:hover .info {
+					opacity: 1;
+				}
+            }
+			&.fullscreen {
+				border-radius: 0;
+				background-color: rgb(15,15,15);
+				position: fixed;
+				inset: 0;
+				z-index: 2;
+				align-items: center;
+				.graph, .bar {
+					height: 100%;
+				}
 			}
-		}
-		.table-wrapper {
-			background-color: rgba(0, 0, 0, 0.8);
-			backdrop-filter: blur(1rem);
-			padding: 1rem;
-			border-radius: 2rem;
-		}
-	}
+        }
+        .chart,
+        .table-wrapper {
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(1rem);
+            padding: 1rem;
+            border-radius: 1rem;
+        }
+    }
     h1 {
         font-size: 3rem;
         font-family: "Frozen", Arial;
         margin: 0 auto;
         text-align: center;
-		filter: drop-shadow(0 0 1rem black);
+        filter: drop-shadow(0 0 1rem black);
     }
 }
 </style>

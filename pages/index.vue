@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const votingEnabled = false	
-const streamEnabled = false
+const streamEnabled = true
 </script>
 
 <template>

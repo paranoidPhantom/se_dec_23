@@ -373,7 +373,7 @@ const listener = supabase
     padding: 2rem;
     border-radius: 1rem;
     background-color: rgb(var(--color-gray-900) / 0.8);
-    border: 1px dashed rgb(var(--color-primary-DEFAULT));
+    border: 1px solid rgb(var(--color-primary-DEFAULT));
     backdrop-filter: blur(2rem);
     h1 {
         font-size: 2rem;

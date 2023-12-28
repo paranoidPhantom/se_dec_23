@@ -52,7 +52,7 @@ const tabs = [
 <style lang="scss">
 .__live-stream {
 	[role=tablist] {
-		border: 1px dashed rgb(var(--color-primary-DEFAULT));
+		border: 1px solid rgb(var(--color-primary-DEFAULT));
 	}
 }
 </style>
@@ -65,7 +65,7 @@ const tabs = [
         width: 100%;
         aspect-ratio: 16 / 9;
         border-radius: 1rem;
-        border: 1px dashed rgb(var(--color-primary-DEFAULT));
+        border: 1px solid rgb(var(--color-primary-DEFAULT));
 		background-color: black;
     }
 }

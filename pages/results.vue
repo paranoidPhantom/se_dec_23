@@ -140,6 +140,9 @@ defineShortcuts({
 <template>
     <div class="__results px-6 sm:px-12 md:px-20 lg:px-32 pt-12 gap-8">
         <h1>Результаты голосования</h1>
+		<div class="clarification">
+			<p>(Не финальные)</p>
+		</div>
         <div class="data flex justify-center gap-8 items-center flex-wrap">
             <div class="chart flex gap-1 sm:gap-2 md:gap-4 w-full" :class="{ fullscreen: fullscreen }">
                 <div class="graph flex flex-col justify-end items-center h-96">
@@ -231,5 +234,11 @@ defineShortcuts({
         text-align: center;
         filter: drop-shadow(0 0 1rem black);
     }
+	.clarification {
+		backdrop-filter: blur(0.5rem);
+		background-color: rgba(0,0,0,0.2);
+		padding: 0.5rem;
+		border-radius: 0.5rem;
+	}
 }
 </style>

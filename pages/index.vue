@@ -32,7 +32,7 @@ const streamEnabled = false;
         background-color: rgba(0, 0, 0, 0.5);
         h1 {
             font-size: 3rem;
-            font-family: "Frozen";
+            font-family: "Frozen", sans-serif;
 			text-align: center;
         }
     }

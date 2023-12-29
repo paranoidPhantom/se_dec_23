@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const votingEnabled = true;
+const votingEnabled = false;
 const streamEnabled = false;
 </script>
 
